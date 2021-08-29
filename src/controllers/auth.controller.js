@@ -1,9 +1,15 @@
+const bcrypt = require('bcrypt');
 const UserModel = require('../models/auth.model');
 
 const registerUser = async (req, res) => {
   try {
-    const newUser = new UserModel(req.body);
+    let { password, ...restUserInfo } = req.body;
+    /* hash password */
+    password = await bcrypt.hash(password, 10);
+    /* create user */
+    const newUser = new UserModel({password, ...restUserInfo});
     await newUser.save();
+
     res.json({ message: 'User created succesfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error registering user' });
