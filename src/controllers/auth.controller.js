@@ -1,32 +1,37 @@
 const UserModel = require('../models/auth.model');
 
-// TODO: HASH PASSWORD
 const registerUser = async (req, res) => {
-  res.json({message: 'register user'});
+  try {
+    const newUser = new UserModel(req.body);
+    await newUser.save();
+    res.json({ message: 'User created succesfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error registering user' });
+  }
 }
 
 const loginUser = async (req, res) => {
-  res.json({message: 'login user'});
+  res.json({ message: 'login user' });
 }
 
 const logoutUser = async (req, res) => {
-  res.json({message: 'logout user'});
+  res.json({ message: 'logout user' });
 }
 
 const updateUser = async (req, res) => {
-  res.json({message: 'update user'});
+  res.json({ message: 'update user' });
 }
 
 const disableUser = async (req, res) => {
-  res.json({message: 'disable user'});
+  res.json({ message: 'disable user' });
 }
 
 const verifyToken = async (req, res) => {
-  res.json({message: 'verify token'});
+  res.json({ message: 'verify token' });
 }
 
 const refreshToken = async (req, res) => {
-  res.json({message: 'refresh token'});
+  res.json({ message: 'refresh token' });
 }
 
 module.exports = {
