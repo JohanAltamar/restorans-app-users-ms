@@ -11,7 +11,26 @@ const registerUser = async (req, res) => {
 }
 
 const loginUser = async (req, res) => {
-  res.json({ message: 'login user' });
+  const { email, password } = req.body;
+  try {
+    const user = await UserModel.findOne({ email });
+    /* check if user exists*/
+    if (!user) {
+      return res.status(401).json({ message: 'User not found' });
+    }
+    /* check if passwords match */
+    const isValidPassword = await user.isValidPassword(password);
+    if (!isValidPassword) {
+      return res.status(401).json({ message: 'Invalid password' });
+    }
+    /* generate token pairs */
+    const { accessToken, refreshToken } = await user.generateTokens();
+    /* send tokens to client */
+    res.json({ accessToken, refreshToken });
+  } catch (error) {
+    console.log(error.message)
+    res.status(500).json({ message: 'Error logging user' });
+  }
 }
 
 const logoutUser = async (req, res) => {

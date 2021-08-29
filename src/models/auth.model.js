@@ -1,5 +1,6 @@
 const { Schema, model } = require('mongoose');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const userSchema = new Schema({
   active: { type: Boolean, default: true },
@@ -15,22 +16,29 @@ const userSchema = new Schema({
   refreshToken: { type: Array, of: String },
 });
 
-userSchema.pre(
-  'save',
-  async function (next) {
-    const user = this;
-    const hash = await bcrypt.hash(this.password, 10);
-
-    this.password = hash;
-    next();
-  }
-);
-
 userSchema.methods.isValidPassword = async function (password) {
   const user = this;
   const compare = await bcrypt.compare(password, user.password);
 
   return compare;
+}
+
+userSchema.methods.generateTokens = async function () {
+  const user = this;
+  const refreshToken = jwt.sign(
+    { id: user._id },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: '1d' }
+  );
+
+  const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: '15min'
+  });
+
+  user.refreshToken.push(refreshToken);
+  await user.save();
+
+  return { refreshToken, accessToken };
 }
 
 module.exports = model('User', userSchema);
