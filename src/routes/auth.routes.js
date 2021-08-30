@@ -14,7 +14,7 @@ router.put('/:userId', authController.updateUser);
 router.delete('/:userId', authController.disableUser);
 
 /* TOKENS MANAGEMENT */
-router.post('/token/verify', authController.verifyToken);
+router.post('/token/verify', verifyToken, authController.verifyToken);
 router.post('/token/refresh', authController.refreshToken);
 
 

@@ -70,7 +70,13 @@ const disableUser = async (req, res) => {
 }
 
 const verifyToken = async (req, res) => {
-  res.json({ message: 'verify token' });
+  const userId = req.userId;
+  /* check if userId is in request */
+  if(!userId) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  res.json({ userId });
 }
 
 const refreshToken = async (req, res) => {
