@@ -23,8 +23,15 @@ userSchema.methods.isValidPassword = async function (password) {
   return compare;
 }
 
-userSchema.methods.generateTokens = async function () {
+userSchema.methods.generateTokens = async function (currentRefreshToken) {
   const user = this;
+
+  /* check if there is a token to be refreshed */
+  if(currentRefreshToken){
+    user.refreshToken = user.refreshToken.filter(token => token !== currentRefreshToken);
+  }
+
+  /* generate tokens pair */
   const refreshToken = jwt.sign(
     { id: user._id },
     process.env.REFRESH_TOKEN_SECRET,
@@ -35,6 +42,7 @@ userSchema.methods.generateTokens = async function () {
     expiresIn: '15min'
   });
 
+  /* add refresh token to user database */
   user.refreshToken.push(refreshToken);
   await user.save();
 

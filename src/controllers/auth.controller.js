@@ -72,7 +72,7 @@ const disableUser = async (req, res) => {
 const verifyToken = async (req, res) => {
   const userId = req.userId;
   /* check if userId is in request */
-  if(!userId) {
+  if (!userId) {
     return res.status(404).json({ message: 'User not found' });
   }
 
@@ -80,7 +80,24 @@ const verifyToken = async (req, res) => {
 }
 
 const refreshToken = async (req, res) => {
-  res.json({ message: 'refresh token' });
+  const refreshToken = req.headers.authorization;
+  const userId = req.userId;
+
+  try {
+    if (!userId || !refreshToken) {
+      return res.status(401).json({ message: 'User not found' });
+    }
+
+    let user = await UserModel.findOne({ _id: userId, refreshToken });
+    if (!user) {
+      return res.status(401).json({ message: 'User not found' });
+    }
+
+    const tokens = await user.generateTokens(refreshToken);
+    res.json(tokens);
+  } catch (error) {
+    res.status(500).json({ message: 'Error refreshing token' });
+  }
 }
 
 module.exports = {
